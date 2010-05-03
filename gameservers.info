@@ -1,0 +1,9 @@
+; $Id$
+name = Game servers
+description = Acquire and display information from a variety of game servers.
+package = Games
+;dependencies[] = ctools
+
+; Packaging 
+version = 6.x-1.x-dev
+core = 6.x

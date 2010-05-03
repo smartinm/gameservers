@@ -1,0 +1,130 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Game Servers module's install and uninstall code.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function gameservers_install() {
+  drupal_install_schema('gameservers');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function gameservers_uninstall() {
+  db_query("DELETE FROM {blocks} WHERE module = 'gameservers'");
+  drupal_uninstall_schema('gameservers');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function gameservers_schema() {
+  $schema['gameservers_server'] = array(
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary Key: Unique game server identifier.',
+        'not null' => TRUE,
+        'type' => 'serial',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'A name for this game server.',
+      ),
+      'description' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'A description or comment for this game server.',
+      ),
+      'hostname' => array(
+        'description' => 'The hostname or IP address of this game server.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'port' => array(
+        'description' => 'The port number of this game server.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'qport' => array(
+        'description' => 'The query port number of this game server.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'Game server enabled status. (1 = enabled, 0 = disabled)',
+      ),
+      'config' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'Plugins configuration of this game server.',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  $schema['gameservers_cache'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['gameservers_cache']['description'] = 'Cache table for the Game Servers module to store already rendered HTML of blocks.';
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_requirements().
+ */
+function gameservers_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  // Ensure that the map images directory can be created.
+  if ($phase == 'runtime') {
+    $path = file_create_path('gameservers/maps');
+    if (!file_check_directory($path, FILE_CREATE_DIRECTORY)) {
+      $path = file_create_path('gameservers');
+      file_check_directory($path, FILE_CREATE_DIRECTORY);
+
+      $path = file_create_path('gameservers/maps');
+      file_check_directory($path, FILE_CREATE_DIRECTORY);
+    }
+
+    $requirements['gameservers_images_maps'] = array(
+      'title' => t('Game Servers image maps'),
+      'severity' => REQUIREMENT_OK,
+      'value' => t('Exists'),
+    );
+
+    if (!file_check_directory($path)) {
+      $requirements['gameservers_images_maps']['description'] = t('The CTools CSS cache directory, %path could not be created due to a misconfigured files directory. Please ensure that the files directory is correctly configured and that the webserver has permission to create directories.', array('%path' => $path));
+      $requirements['gameservers_images_maps']['severity'] = REQUIREMENT_ERROR;
+      $requirements['gameservers_images_maps']['value'] = t('Unable to create');
+    }
+  }
+
+  // Test gameservers Condenser library
+  /*
+  $requirements['steam_library'] = array(
+    'title' => $t('Steam Condenser library'),
+    'value' => ($phase == 'runtime') ? l(phpversion(), 'admin/logs/status/php') : phpversion(),
+  );
+  */
+
+  return $requirements;
+}

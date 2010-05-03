@@ -1,0 +1,11 @@
+// $Id$
+
+Game Servers 6.x-1.x, xxxx-xx-xx (development version)
+--------------------------------
+
+
+Game Servers 6.x-1.0-alpha1, xxxx-xx-xx
+---------------------------------------
+Initial release of gameservers module.
+
+plugins.inc: v 1.18.2.5 2010/01/16 00:07:34 (ctools-6.x-1.3)

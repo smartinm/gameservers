@@ -1,0 +1,57 @@
+/* $Id$ */
+
+.block-gameservers .content {
+  background-color: #D3DEE3;
+  text-align: center;
+  /*width: 160px;*/
+  margin: 0 auto;
+  font: 10px verdana,tahoma,arial,helvetica,sans-serif;
+  color: #000000;
+}
+
+.block-gameservers .content .game-link,
+.block-gameservers .content .game-name {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.block-gameservers .content .game-link {
+  color: #044374;
+}
+
+.block-gameservers .content .map-image {
+  width: 160px;
+  height: 120px;
+  border: 1px solid #ccc;
+  margin: 10px auto 0 auto;
+}
+
+.block-gameservers .content .map-name {
+  margin: 1px auto;
+}
+
+.block-gameservers .content .players {
+  border: 1px solid;
+  height: 100px;
+  overflow:auto;
+  text-align:left;
+}
+
+.block-gameservers .content .players .title {
+  float:left;
+  padding:1px;
+  margin-bottom: 10px;
+}
+
+.block-gameservers .content .players .num {
+  float:right;
+  padding:1px;
+}
+
+.block-gameservers .content .players .player {
+  clear: both;
+  overflow:hidden;
+  padding:1px;
+  text-align:left;
+  white-space:nowrap;
+}

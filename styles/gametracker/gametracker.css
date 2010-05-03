@@ -1,0 +1,451 @@
+/* $Id$ */
+
+div.global {
+  border: solid;
+  border-width: 1px;
+  font: 11px Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  padding: 0;
+  overflow: hidden;
+}
+
+div.global {
+  width: 198px;
+  height: 410px;
+  background-color: #333333;
+  color: #CCCCCC;
+  border-color: #555555;
+}
+
+div.global a {
+  color: #FFCC00;
+  text-decoration: none;
+}
+
+div.global img {
+  border: none;
+}
+
+div.global table {
+  border-collapse: collapse;
+  padding: 0;
+}
+
+.item_color_link {
+  color: #FFCC00;
+  cursor: pointer;
+}
+
+.item_float_left {
+  float: left;
+}
+
+.item_float_right {
+  float: right;
+}
+
+.item_float_clear {
+  clear: both;
+  height: 0px;
+  font-size: 0px;
+  line-height: 0px;
+}
+
+.item_textalign_center {
+  text-align: center;
+}
+
+div.item_h05 {
+  height: 5px;
+}
+
+img.image_160x120 {
+  width: 160px;
+  height: 120px;
+}
+
+img.image_132x99 {
+  width: 132px;
+  height: 99px;
+}
+
+div.header_footer {
+  height: 16px;
+  line-height: 16px;
+  padding: 1px;
+  overflow: hidden;
+  text-align: right;
+  background-color: #555555;
+}
+
+div.header_footer a {
+  font-size: 11px;
+  text-decoration: none;
+  color: #222222;
+}
+
+div.info_line {
+  margin: 2px 4px;
+  height: 14px;
+  overflow: hidden;
+}
+
+div.info_line_right {
+  float: right;
+  overflow: hidden;
+  width: 140px;
+}
+
+div.map_image {
+  margin: 2px;
+  text-align: center;
+}
+
+div.map_image img {
+  display: block;
+  border: solid;
+  border-width: 1px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+div.map_image img {
+  border-color: #555555;
+}
+
+div.server_name {
+  margin: 2px;
+  height: 28px;
+  padding: 2px;
+  border: solid;
+  border-width: 1px;
+  overflow: hidden;
+  font-weight: bold;
+}
+
+div.server_name {
+  width: 188px;
+  background-color: #222222;
+  border-color: #555555;
+  color: #FF9900;
+}
+
+div.scrollable {
+  margin: 2px;
+  height: 100px;
+  padding: 2px;
+  border: solid;
+  border-width: 1px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+}
+
+div.scrollable {
+  width: 188px;
+  background-color: #222222;
+  border-color: #555555;
+}
+
+div.scrollable_noresults {
+  text-align: center;
+  vertical-align: middle;
+  margin-top: 40px;
+}
+
+div.scrollable_on_c01 {
+  float: left;
+  white-space: nowrap;
+  width: 21px;
+  overflow: hidden;
+}
+
+div.scrollable_on_c02 {
+  float: left;
+  white-space: nowrap;
+  width: 104px;
+  overflow: hidden;
+}
+
+div.scrollable_on_c03 {
+  float: right;
+  white-space: nowrap;
+  text-align: right;
+}
+
+div.scrollable_blogspc {
+  margin: 3px 0px;
+  height: 1px;
+  background-color: #555555;
+}
+
+div.scrollable_bloghdr {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+div.channelViewScrollable {
+  height: 100px;
+}
+
+#popuptest {
+  font-weight: bold;
+  display: none;
+  height: 2000px;
+  padding: 5px;
+  text-align: center;
+}
+
+span.btn_custom {
+  text-decoration: none;
+  font-size: 11px;
+  height: 16px;
+  line-height: 16px;
+  border: solid;
+  border-width: 1px;
+  overflow: hidden;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  color: #FFCC00;
+  border-color: #555555;
+  background-color: #222222;
+  padding: 0px 4px;
+}
+
+div.tree_header {
+  line-height: 16px;
+  height: 16px;
+  white-space: nowrap;
+  color: #FF9900;
+  position: relative;
+  padding-left: 20px;
+}
+
+div.tree_item {
+  position: relative;
+  height: 16px;
+  width: 600px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+div.tree_to0 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+}
+
+div.tree_to1 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_tree_outer.gif);
+}
+
+div.tree_to2 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_tree_item.gif);
+}
+
+div.tree_to3 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_tree_last.gif);
+}
+
+div.tree_ts0 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_ts_cicon.gif);
+}
+
+div.tree_ts1 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_ts_picon.gif);
+}
+
+div.tree_ts2 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_ts_picon_away.gif);
+}
+
+div.tree_ts3 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_ts_picon_commander.gif);
+}
+
+div.tree_ts4 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_ts_picon_mikemute.gif);
+}
+
+div.tree_ts5 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_ts_picon_soundmute.gif);
+}
+
+div.tree_ts30 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/16x16_channel_green.png);
+}
+
+div.tree_ts31 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/16x16_player_off.png);
+}
+
+div.tree_gt0 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_gt_cicon.gif);
+}
+
+div.tree_gt1 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vc_gt_picon_g.gif);
+}
+
+div.tree_gt2 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vc_gt_picon_a.gif);
+}
+
+div.tree_vt0 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_vent_cicon0.gif);
+}
+
+div.tree_vt1 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_vent_cicon0_last.gif);
+}
+
+div.tree_vt2 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_vent_cicon1.gif);
+}
+
+div.tree_vt3 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_vent_cicon1_last.gif);
+}
+
+div.tree_vt4 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_vent_cicon2.gif);
+}
+
+div.tree_vt5 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_vent_cicon2_last.gif);
+}
+
+div.tree_vt6 {
+  position: absolute;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  background-image: url(/images/server_info/vs_vent_picon.gif);
+}
+
+div.tree_bsc {
+  position: absolute;
+  top: 0px;
+  height: 16px;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  padding-left: 2px;
+}
+
+span.tree_fr {
+  font-family: Arial;
+  margin: 0px 2px;
+  background-color: #333333;
+  padding: 0px 3px;
+  border: solid 1px #555555;
+  font-size: 8px;
+}
+
+span.tree_fp {
+  font-family: Arial;
+  margin: 0px 2px;
+  background-color: #333333;
+  padding: 0px 3px;
+  border: solid 1px #555555;
+  font-size: 8px;
+  color: #FFCC00;
+}
+
+span.tree_fc {
+  font-family: Arial;
+  margin: 0px 2px;
+  background-color: #333333;
+  padding: 0px 3px;
+  border: solid 1px #555555;
+  font-size: 8px;
+  color: #CC9900;
+}
+
+span.tree_advanced {
+  margin-left: 30px;
+  color: #777777;
+  display: none;
+}
