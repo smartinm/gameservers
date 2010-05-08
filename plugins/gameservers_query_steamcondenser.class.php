@@ -13,33 +13,59 @@ class gameservers_query_steamcondenser extends gameservers_query {
 
   public function getGameTypes() {
     $types = array(
-      'goldsrc' => 'GoldSrc game (HL, CS, TFC, ...)',
-      'source' => 'Source game (HL2, CS:S, TF2, L4D, ...)',
+      'goldsrc' => 'GoldSrc game',
+      'source' => 'Source game',
     );
     return $types;
   }
 
-  public function query($config) {
+  protected function queryServer($server, &$response) {
+    $error_level = error_reporting(E_ALL & ~E_USER_NOTICE);
+
     $lib_path = gameservers_get_path_library('steam-condenser') .'/lib';
     set_include_path(get_include_path() . PATH_SEPARATOR . $lib_path);
-    gameservers_include_library('lib/steam/servers/SourceServer.php', 'steam-condenser');
+    require_once 'steam/servers/SourceServer.php';
 
-    $error_level = error_reporting(E_ALL & ~E_USER_NOTICE);
     try {
-      $output = '';
-
-      $server = new SourceServer(new InetAddress($server_address[0]), $server_address[1]);
-      $server->initialize();
-      $server->updatePlayerInfo();
-      $server->updateRulesInfo();
-      dpm($server->getServerInfo());
-
-      $server_info = array();
-      foreach ($server->getServerInfo() as $key => $value) {
-        $server_info[] = '<strong>'. $key .'</strong>: '. check_plain($value);
+      $config = $server->config['query'];
+      if ($config['gametype'] == 'goldsrc') {
+        $server = new GoldSrcServer(new InetAddress($server->hostname), $server->port);
       }
-      //$output = '<pre>' . $server->__toString() .'</pre>';
-      $output = theme('item_list', $server_info);
+      else {
+        $server = new SourceServer(new InetAddress($server->hostname), $server->port);
+      }
+
+      $server->initialize();
+
+      $response['raw'] = array(
+        'server' => $server->getServerInfo(),
+        'players' => $server->getPlayers(),
+        'rules' => $server->getRules(),
+        'ping' => $server->getPing(),
+      );
+
+      $response['address']    = $server->hostname;
+      $response['port']       = $response['raw']['server']['serverPort'];
+      $response['online']     = $response['raw']['ping'] ? TRUE : FALSE;
+      $response['protocol']   = $config['gametype'];
+
+      $response['game']       = $response['raw']['server']['gameDir'];
+      $response['servername'] = $response['raw']['server']['serverName'];
+      $response['mapname']    = $response['raw']['server']['mapName'];
+
+      $response['numplayers'] = $response['raw']['server']['playerNumber'];
+      $response['maxplayers'] = $response['raw']['server']['maxPlayers'];
+
+      $response['extra'] = $server->getRules();
+
+      foreach ($server->getPlayers() as $steam_player) {
+        $player = new stdClass();
+        $player->name = check_plain($steam_player->getName());
+        $player->score = $steam_player->getScore();
+        $player->time = $steam_player->getConnectTime();
+
+        $response['players'][] = $player;
+      }
     }
     catch (Exception $ex) {
       drupal_set_message($ex->__toString(), 'error');
@@ -47,24 +73,6 @@ class gameservers_query_steamcondenser extends gameservers_query {
 
     error_reporting($error_level);
 
-    /*
-    $data['raw'] = $response;
-    $data['game_link'] = $response['b']['ip'] .':'. $response['b']['c_port'];
-    $data['game_name'] = $response['s']['name'];
-    $data['map_image'] = '';
-    $data['map_name'] = $response['s']['map'];
-    $data['num_players'] = $response['s']['players'] .'/'. $response['s']['playersmax'];
-
-    $data['players'] = array();
-    if (!empty($response['p'])) {
-      foreach ($response['p'] as $player) {
-        if ($player['name']) {
-          $name = $player['name'];
-          $data['players'][$name]->name = check_plain($name);
-        }
-      }
-    }
-    */
-    return $data;
+    return TRUE;
   }
 }

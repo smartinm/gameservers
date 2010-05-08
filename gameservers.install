@@ -18,6 +18,7 @@ function gameservers_install() {
  */
 function gameservers_uninstall() {
   db_query("DELETE FROM {blocks} WHERE module = 'gameservers'");
+  variable_del('gameservers_default_plugin');
   drupal_uninstall_schema('gameservers');
 }
 
@@ -116,15 +117,15 @@ function gameservers_requirements($phase) {
       $requirements['gameservers_images_maps']['severity'] = REQUIREMENT_ERROR;
       $requirements['gameservers_images_maps']['value'] = t('Unable to create');
     }
-  }
 
-  // Test gameservers Condenser library
-  /*
-  $requirements['steam_library'] = array(
-    'title' => $t('Steam Condenser library'),
-    'value' => ($phase == 'runtime') ? l(phpversion(), 'admin/logs/status/php') : phpversion(),
-  );
-  */
+    // -- Plugins
+    // @todo Si no hay ningún plugin funcionando devolver un error
+    $plugins = gameservers_get_query_libraries();
+    foreach ($plugins as $key => $plugin) {
+      if (!$plugin['hidden']) {
+      }
+    }
+  }
 
   return $requirements;
 }

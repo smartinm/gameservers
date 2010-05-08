@@ -74,4 +74,20 @@ class gameservers_query_gameq extends gameservers_query {
 
     return FALSE;
   }
+
+  /* (non-PHPdoc)
+   * @see plugins/gameservers_query#config_form($server, $form_state)
+   */
+  public function config_form($server, &$form_state) {
+    $form = array();
+    $form['timeout'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Timeout'),
+      '#default_value' => isset($form_state['timeout']) ? $form_state['timeout'] : 0,
+      '#description' => t('Query timeout in milliseconds. If set to zero, no timeout is used.'),
+      '#field_suffix' => t('ms'),
+      '#size' => 10,
+    );
+    return $form;
+  }
 }

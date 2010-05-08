@@ -24,7 +24,7 @@ function gameservers_browse() {
 
     $response = (object) $response;
     $join_link  = l(t('!hostname:!port', array('!hostname' => $server->hostname, '!port' => $server->port)), '');
-    $detail_link = l(t('details'), "gameservers/$reponse->id");
+    $detail_link = l(t('details'), "gameservers/$data->id");
     $row = array(
       !empty($response->online) ? t('Online') : t('Offline'),
       check_plain($response->protocol) .'/'. check_plain($response->game),
@@ -45,4 +45,39 @@ function gameservers_browse() {
 
   //drupal_set_title(t('Game servers list'));
   return $output;
+}
+
+/**
+ * Menu callback; display a list of game servers.
+ */
+function gameservers_details_page($id) {
+  $server = gameservers_server_load($id);
+  $response = gameservers_server_query($server);
+
+  drupal_set_title($response->servername);
+
+  // Extra settings
+  $rows = array();
+  foreach ($response->extra as $setting => $value) {
+    if (is_string($value)) {
+      $rows[] = array($setting, check_plain($value));
+    }
+  }
+  usort($rows, '_gameservers_setting_sort');
+
+  $output = theme('table', array(t('Setting'), t('Value')), $rows);
+
+  return $output;
+}
+
+/**
+ * Function used by uasort to sort structured arrays by weight.
+ */
+function _gameservers_setting_sort($a, $b) {
+  $a_setting = (is_array($a) && isset($a[0])) ? $a[0] : 0;
+  $b_setting = (is_array($b) && isset($b[0])) ? $b[0] : 0;
+  if ($a_setting == $b_setting) {
+    return 0;
+  }
+  return ($a_setting < $b_setting) ? -1 : 1;
 }

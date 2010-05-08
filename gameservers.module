@@ -75,6 +75,7 @@ function gameservers_theme() {
  * Implementation of hook_menu().
  */
 function gameservers_menu() {
+  // -- Pages
   $items['gameservers'] = array(
     'title' => 'Game servers',
     'page callback' => 'gameservers_browse',
@@ -82,6 +83,15 @@ function gameservers_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'gameservers.pages.inc',
   );
+  $items['gameservers/%'] = array(
+    'title' => 'Game server details',
+    'page callback' => 'gameservers_details_page',
+    'page arguments' => array(1),
+    'access arguments' => array('access game servers'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'gameservers.pages.inc',
+  );
+  // -- Admin pages
   $items['admin/build/gameservers'] = array(
     'title' => 'Game servers',
     'description' => 'Configure game servers.',
@@ -119,7 +129,7 @@ function gameservers_menu() {
     'file' => 'gameservers.admin.inc',
   );
   $items['admin/build/gameservers/settings'] = array(
-    'title' => 'Settings',
+    'title' => 'Configure',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gameservers_admin_configure'),
     'access arguments' => array('administer game servers'),
@@ -231,7 +241,6 @@ function gameservers_get_query_instance($id) {
   static $instances = array();
 
   if (!isset($instances[$id])) {
-    gameservers_include('gameserver');
     gameservers_include_plugins();
 
     if ($class = ctools_plugin_load_class('gameservers', 'query', $id, 'handler')) {
@@ -247,7 +256,7 @@ function gameservers_get_query_instance($id) {
 }
 
 // ------------------------------------------------------------------
-// Server CRUD functions
+// Game servers API functions
 // ------------------------------------------------------------------
 
 /**
@@ -312,25 +321,44 @@ function gameservers_server_delete($id) {
  *   An HTML representation of the themed game server.
  */
 function gameservers_server_view($server, $block = FALSE, $page = FALSE) {
-  if (!$server->status) {
-    return;
-  }
 
-  $config = $server->config;
-  $query = gameservers_get_query_instance($config['query']['plugin']);
-  if ($reponse = $query->getResponse($server)) {
-    $reponse = (object) $reponse;
-  }
+  $response = gameservers_server_query($server);
 
   if ($block) {
-    $theme_hook = 'gameservers_block';
-    $style = gameservers_get_block($config['blocks']['plugin']);
+    $style = gameservers_get_block($server->config['blocks']['plugin']);
+    $output = theme('gameservers_block', $server, $response, $style);
   }
   else {
-    $theme_hook = 'gameservers_page_details';
+    $output = theme('gameservers_page_details', $server, $response);
   }
 
-  return theme($theme_hook, $server, $reponse, $style);
+  return $output;
+}
+
+/**
+ * Query a game server and return the response.
+ */
+function gameservers_server_query($server) {
+  static $responses = array();
+
+  if (!isset($responses[$server->id])) {
+    $query = gameservers_get_query_instance($server->config['query']['plugin']);
+
+    module_invoke_all('gameservers_pre_query', $server);
+    $response = $query->getResponse($server);
+    module_invoke_all('gameservers_reponse_query', $server, $response);
+
+    $responses[$server->id] = $response;
+  }
+
+  return isset($responses[$server->id]) ? (object) $responses[$server->id] : FALSE;
+}
+
+/**
+ *
+ */
+function gameservers_server_query_multiple($servers) {
+  // @todo
 }
 
 // ------------------------------------------------------------------
@@ -366,11 +394,16 @@ function gameservers_get_path($file, $base_path = FALSE, $module = 'gameservers'
  * @see libraries_get_path().
  */
 function gameservers_get_path_library($library) {
+  // Try first whether libraries module is present and load the file from
+  // there. If this fails, require the library from the local path.
   if (module_exists('libraries') && file_exists(libraries_get_path($library))) {
     return libraries_get_path($library);
   }
+  elseif (file_exists(gameservers_get_path("libraries/$library"))) {
+    return gameservers_get_path("libraries/$library");
+  }
   else {
-    return gameservers_get_path("/libraries/$library");
+    return gameservers_get_path('libraries');
   }
 }
 
@@ -387,14 +420,7 @@ function gameservers_get_path_library($library) {
 function gameservers_include_library($file, $library) {
   static $included = array();
   if (!isset($included[$library][$file])) {
-    // Try first whether libraries module is present and load the file from
-    // there. If this fails, require the library from the local path.
-    if (module_exists('libraries') && file_exists(libraries_get_path($library) ."/$file")) {
-      require libraries_get_path($library) ."/$file";
-    }
-    else {
-      require './'. drupal_get_path('module', 'gameservers') ."/libraries/$library/$file";
-    }
+    require gameservers_get_path_library($library) ."/$file";
   }
   $included[$library][$file] = TRUE;
 }

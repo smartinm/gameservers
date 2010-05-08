@@ -72,7 +72,7 @@ function gameservers_admin_add_form(&$form_state) {
 
   $form['server'] = array(
     '#type' => 'textfield',
-    '#title' => t('Address'),
+    '#title' => t('Server address'),
     '#description' => t('The game server address (e.g. <em>192.0.32.10:27015)</em>.'),
   );
 
@@ -87,19 +87,20 @@ function gameservers_admin_add_form(&$form_state) {
     '#title' => t('Advanced'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#tree' => FALSE,
   );
 
   $form['advanced']['hostname'] = array(
     '#type' => 'textfield',
-    '#title' => t('IP address'),
-    '#description' => t('The IP or hostname of this game server.'),
+    '#title' => t('IP or hostname'),
+    '#description' => t('The IP address or hostname of this game server.'),
     '#required' => TRUE,
   );
 
   $form['advanced']['port'] = array(
     '#type' => 'textfield',
     '#title' => t('Port'),
-    '#size' => 8,
+    '#size' => 10,
     '#description' => t('The connect port of this game server.'),
     '#required' => TRUE,
   );
@@ -107,8 +108,33 @@ function gameservers_admin_add_form(&$form_state) {
   $form['advanced']['qport'] = array(
     '#type' => 'textfield',
     '#title' => t('Query port'),
-    '#size' => 8,
-    '#description' => t('The query port of this game server.'),
+    '#size' => 10,
+    '#description' => t('The query port of this game server, the query library will try to guess. Leave it blank unless you know what youre doing.'),
+  );
+
+  $form['advanced']['status'] = array(
+    '#type' => 'radios',
+    '#title' => t('Status'),
+    '#default_value' => 1,
+    '#options' => array(t('Disabled'), t('Enabled'))
+  );
+
+  $plugins = array('' => t('- Please choose -'));
+  foreach (gameservers_get_query_libraries() as $plugin => $data) {
+    if (!$data['hidden']) {
+      $plugins[$plugin] = $data['title'];
+    }
+  }
+  $default_plugin = variable_get('gameservers_default_plugin', '');
+
+  $form['advanced']['config']['#tree'] = TRUE;
+  $form['advanced']['config']['query']['plugin'] = array(
+    '#type' => 'select',
+    '#title' => t('Query library'),
+    '#required' => TRUE,
+    '#options' => $plugins,
+    '#default_value' => $default_plugin,
+    '#description' => t('Select a game server query library.'),
   );
 
   $form['submit'] = array(
@@ -129,11 +155,8 @@ function gameservers_admin_add_form_validate($form, &$form_state) {
  * Submit handler for gameservers_admin_add_form().
  */
 function gameservers_admin_add_form_submit($form, &$form_state) {
-  // Create game server.
   $server = (object) $form_state['values'];
-
   gameservers_server_save($server);
-
   drupal_set_message(t('Your game server has been created with default settings. If they do not fit your use case you can adjust them here.'));
   $form_state['redirect'] = 'admin/build/gameservers/edit/'. $server->id;
 }
@@ -163,161 +186,6 @@ function gameservers_admin_delete_form_submit($form, &$form_state) {
 }
 
 /**
- * Menu callback; handles pages for editing game servers.
- *
- * @see feeds_ui_edit_page()
- */
-function gameservers_admin_edit_page2($id, $active = 'help', $plugin_key = '') {
-
-  $server = gameservers_server_load($id);
-
-  // Get plugins and configuration.
-  $query_libraries = gameservers_get_query_libraries();
-  $config = $server->config;
-
-  // Base path for changing the active container.
-  $path = 'admin/build/gameservers/edit/'. $server->id;
-
-  $active_container = array(
-    'class' => 'active-container',
-    'actions' => array(l(t('Help'), $path)),
-  );
-
-  switch ($active) {
-    case 'help':
-      $active_container['title'] = t('Getting started');
-      $active_container['body'] = '<div class="help feeds-admin-ui">'. feeds_ui_edit_help() .'</div>';
-      unset($active_container['actions']);
-      break;
-
-    case 'query':
-      $active_container['title'] = t('Select a !plugin_type', array('!plugin_type' => $active));
-      $active_container['body'] = drupal_get_form('gameservers_admin_plugin_form', $server, $active);
-      break;
-
-    case 'settings':
-      //drupal_add_js(drupal_get_path('module', 'feeds_ui') .'/feeds_ui.js');
-
-      if (empty($plugin_key)) {
-        $active_container['title'] = t('Basic settings');
-        $active_container['body'] = feeds_get_config_form($importer);
-      }
-      elseif (in_array($plugin_key, array_keys($plugins)) && $plugin = feeds_plugin_instance($plugin_key, $importer->id)) {
-        $active_container['title'] = t('Settings for !plugin', array('!plugin' => $plugins[$plugin_key]['name']));
-        $active_container['body'] = feeds_get_config_form($plugin);
-      }
-      break;
-  }
-
-  // Build config info.
-  $config_info = $info = array();
-  $info['class'] = 'config-set';
-
-  // Basic information.
-  $items = array();
-  $items[] = t('Demo');
-
-  $info['title'] = t('Basic settings');
-  $info['body'] = array(array(
-    'body' => theme('item_list', $items),
-    'actions' => array(l(t('Settings'), $path .'/settings')),
-  ));
-  $config_info[] = $info;
-
-  // Query
-  $fetcher = $plugins[$config['fetcher']['plugin_key']];
-  $actions = array();
-  if (feeds_get_config_form($importer->fetcher)) {
-    $actions = array(l(t('Settings'), $path .'/settings/'. $config['fetcher']['plugin_key']));
-  }
-  $info['title'] = t('Fetcher');
-  $info['body'] = array(array(
-    'title' => $fetcher['name'],
-    'body' => $fetcher['description'],
-    'actions' => $actions,
-  ));
-  $info['actions'] = array(l(t('Change'), $path .'/fetcher'));
-  $config_info[] = $info;
-
-  return theme('feeds_ui_edit_page', $config_info, $active_container);
-}
-
-/**
- * Build a form of plugins to pick from.
- *
- * @param $form_state
- *   Form API form state array.
- * @param $importer
- *   FeedsImporter object.
- * @param $type
- *   Plugin type. One of 'fetcher', 'parser', 'processor'.
- *
- * @return
- *   A Form API form definition.
- */
-function gameservers_admin_plugin_form(&$form_state, $server, $type) {
-  $plugins = feeds_get_plugins_by_type($type);
-
-  $form = array();
-  $form['#importer'] = $importer;
-  $form['#plugin_type'] = $type;
-
-  foreach ($plugins as $key => $plugin) {
-    $form['plugin_key'][$key] = array(
-      '#type' => 'radio',
-      '#parents' => array('plugin_key'),
-      '#title' => $plugin['name'],
-      '#description' => isset($plugin['help']) ? $plugin['help'] : $plugin['description'],
-      '#return_value' => $key,
-      '#default_value' => ($plugin['handler']['class'] == get_class($importer->$type)) ? $key : '',
-    );
-  }
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save'),
-    '#attributes' => array('class' => 'feeds-ui-hidden-submit'),
-  );
-  return $form;
-}
-
-/**
- * Submit handler for gameservers_admin_plugin_form().
- */
-function gameservers_admin_plugin_form_submit($form, &$form_state) {
-  // Set the plugin and save feed.
-  $form['#importer']->setPlugin($form_state['values']['plugin_key']);
-  $form['#importer']->save();
-  drupal_set_message(t('Changed !type plugin.', array('!type' => $form['#plugin_type'])));
-}
-
-/**
- * Theme gameservers_admin_plugin_form().
- */
-function theme_gameservers_admin_plugin_form($form) {
-  drupal_add_js(drupal_get_path('module', 'feeds_ui') .'/feeds_ui.js');
-  $output = '';
-
-  foreach (element_children($form['plugin_key']) as $key) {
-
-    // Assemble container, render form elements.
-    $container = array(
-      'title' => $form['plugin_key'][$key]['#title'],
-      'body' => $form['plugin_key'][$key]['#description'],
-    );
-    $form['plugin_key'][$key]['#title'] = t('Select');
-    $form['plugin_key'][$key]['#attributes']['class'] = 'feeds-ui-radio-link';
-    unset($form['plugin_key'][$key]['#description']);
-    $container['actions'] = array(drupal_render($form['plugin_key'][$key]));
-
-    $output .= theme_feeds_ui_container($container);
-  }
-
-  $output .= drupal_render($form);
-  return $output;
-}
-
-
-/**
  * Menu callback; handles pages for creating and editing game servers.
  */
 function gameservers_admin_edit_page($id) {
@@ -331,8 +199,10 @@ function gameservers_admin_edit_page($id) {
 /**
  * Menu callback; displays the block configuration form.
  */
-function gameservers_admin_edit(&$form_state, $server = NULL) {
+function gameservers_admin_edit(&$form_state, $server) {
   $form = array();
+
+  $form['#server'] = $server;
 
   $form['id'] = array(
     '#type' => 'value',
@@ -358,10 +228,9 @@ function gameservers_admin_edit(&$form_state, $server = NULL) {
   $form['server']['hostname'] = array(
     '#type' => 'textfield',
     '#title' => t('IP or hostname'),
-    '#description' => t('The IP or hostname of this game server.'),
+    '#description' => t('The IP address or hostname of this game server.'),
     '#required' => TRUE,
     '#default_value' => isset($server->hostname) ? $server->hostname : '',
-    //'#prefix' => '<div class="container-inline">',
   );
 
   $form['server']['port'] = array(
@@ -371,7 +240,6 @@ function gameservers_admin_edit(&$form_state, $server = NULL) {
     '#description' => t('The connect port of this game server.'),
     '#required' => TRUE,
     '#default_value' => isset($server->port) ? $server->port : '',
-    //'#suffix' => '</div>',
   );
 
   $form['server']['qport'] = array(
@@ -396,10 +264,12 @@ function gameservers_admin_edit(&$form_state, $server = NULL) {
     '#default_value' => isset($server->description) ? $server->description : '',
   );
 
+  // -- Plugin query specific settings
+
   $form['config'] = array('#tree' => TRUE);
   $form['config']['query'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Query plugin settings'),
+    '#title' => t('Plugin specific settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
@@ -417,7 +287,7 @@ function gameservers_admin_edit(&$form_state, $server = NULL) {
 
   $form['config']['query']['plugin'] = array(
     '#type' => 'select',
-    '#title' => t('Query Library'),
+    '#title' => t('Query library'),
     '#required' => TRUE,
     '#options' => $libraries,
     '#default_value' => $query_library,
@@ -432,7 +302,7 @@ function gameservers_admin_edit(&$form_state, $server = NULL) {
 
     $form['config']['query']['gametype'] = array(
       '#type' => 'select',
-      '#title' => t('Game Type'),
+      '#title' => t('Game type'),
       '#default_value' => isset($server->config['query']['gametype']) ? $server->config['query']['gametype'] : '',
       '#required' => TRUE,
       '#options' => array(
@@ -440,31 +310,32 @@ function gameservers_admin_edit(&$form_state, $server = NULL) {
        ) + $gametypes,
     );
 
-    $configuration = $query->configForm($server, $form_state);
+    $configuration = $query->config_form($server, $form_state);
     if (!empty($configuration)) {
       $form['config']['query'] += $configuration;
     }
-
-    $blocks = array('' => $default);
-    foreach (ctools_get_plugins('gameservers', 'blocks') as $block => $data) {
-      $blocks[$block] = $data['title'];
-    }
-
-    $form['config']['blocks'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Display settings'),
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
-    );
-    $form['config']['blocks']['plugin'] = array(
-      '#type' => 'select',
-      '#title' => t('Block style'),
-      '#required' => TRUE,
-      '#options' => $blocks,
-      '#default_value' => isset($server->config['blocks']['plugin']) ? $server->config['blocks']['plugin'] : '',
-      '#description' => t('Select a game server block style.'),
-    );
   }
+
+  // -- Plugin style specific settings
+  $blocks = array('' => $default);
+  foreach (ctools_get_plugins('gameservers', 'blocks') as $block => $data) {
+    $blocks[$block] = $data['title'];
+  }
+
+  $form['config']['blocks'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Style specific settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['config']['blocks']['plugin'] = array(
+    '#type' => 'select',
+    '#title' => t('Block style'),
+    '#required' => TRUE,
+    '#options' => $blocks,
+    '#default_value' => isset($server->config['blocks']['plugin']) ? $server->config['blocks']['plugin'] : '',
+    '#description' => t('Select a game server block style.'),
+  );
 
   $form['save'] = array(
     '#type' => 'submit',
@@ -494,11 +365,48 @@ function gameservers_admin_edit_submit($form, &$form_state) {
 /**
  * Menu callback; Build the form presenting menu configuration options.
  */
-function gameservers_admin_configure() {
+function gameservers_admin_configure(&$form_state) {
   $form['intro'] = array(
     '#type' => 'item',
     '#value' => t('The following option sets the default configuration in which a new game server will be added.'),
   );
+
+  $form['plugins'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Plugins'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#description' => t('Choose the game server query plugin to be the default.'),
+  );
+
+  $default_plugin = variable_get('gameservers_default_plugin', '');
+
+  include_once './includes/install.inc';
+  $plugins = gameservers_get_query_libraries();
+  foreach ($plugins as $key => $plugin) {
+    if (!$plugin['hidden']) {
+      $query = gameservers_get_query_instance($key);
+      $requirements = $query->requirements();
+      $form['plugins']['gameservers_default_plugin'][$key] = array(
+        '#type' => 'radio',
+        '#parents' => array('gameservers_default_plugin'),
+        '#title' => $plugin['title'],
+        '#description' => isset($plugin['description']) ? $plugin['description'] : '',
+        '#return_value' => $key,
+        '#default_value' => ($default_plugin == $key) ? $key : '',
+        '#disabled' => drupal_requirements_severity($requirements) == REQUIREMENT_ERROR ? TRUE : FALSE,
+      );
+
+      foreach ($requirements as $requirement) {
+        if (isset($requirement['severity'])) {
+          $form['plugins']['plugin_key'][] = array(
+            '#type' => 'markup',
+            '#value' => $requirement['description'],
+          );
+        }
+      }
+    }
+  }
 
   $form['map_images'] = array(
     '#type' => 'fieldset',
@@ -514,21 +422,6 @@ function gameservers_admin_configure() {
     '#size' => 30,
     '#maxlength' => 255,
     '#description' => t('Subdirectory in the directory %dir where pictures will be stored.', array('%dir' => file_directory_path() .'/gameservers')),
-  );
-
-  $plugins = array('' => t('- None -'));
-  foreach (gameservers_get_query_libraries() as $plugin => $data) {
-    if (!$data['hidden']) {
-      $plugins[$plugin] = $data['title'];
-    }
-  }
-
-  $form['gameservers_default_query_plugin'] = array(
-    '#type' => 'select',
-    '#title' => t('Default query plugin'),
-    '#default_value' => variable_get('gameservers_default_query_plugin', ''),
-    '#options' => $plugins,
-    '#description' => t('Choose the game server query plugin to be the default.'),
   );
 
   return system_settings_form($form);

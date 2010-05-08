@@ -16,25 +16,25 @@ To submit bug reports and feature suggestions, or to track changes:
 
 * At least one of the following supported game server query libraries:
 
-  - GameQ
-    http://gameq.sourceforge.net/
-
   - LGSL Protocol (Live Game Server List)
-    http://www.greycube.com/help/readme/lgsl/
-    http://www.greycube.com/site/download.php?list.10
+    http://www.greycube.com/help/lgsl_beta/lgsl_protocol.zip
+    http://www.greycube.com/site/download.php?view.56
 
-  - Steam Condenser (unsopported)
-    http://koraktor.github.com/steam-condenser/index.html
+  - GameQ
+    http://gameq.sourceforge.net
+
+  - Steam Condenser
+    http://koraktor.github.com/steam-condenser
   
-  - ax-gameserver-query (unsopported)
-    http://code.google.com/p/ax-gameserver-query/
+  - ax-gameserver-query (unsupported yet)
+    http://code.google.com/p/ax-gameserver-query
 
-  - gsQuery (unsopported)
+  - gsQuery (unsupported yet)
     http://gsquery.terragate.net
 
-  - Service Aggregation (unsopported)
-    http://www.game-monitor.com/
-    http://www.serverspy.net/
+  - Services aggregation (unsupported yet)
+    http://www.game-monitor.com
+    http://www.serverspy.net
 
 * Optional: Chaos tool suite
   http://drupal.org/project/ctools

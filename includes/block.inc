@@ -38,9 +38,11 @@ function gameservers_block_save($id, $edit) {
  */
 function gameservers_block_view($id) {
   if ($server = gameservers_server_load($id)) {
-    return array(
-      'subject' => t('Game Server'),
-      'content' => gameservers_server_view($server, TRUE),
-    );
+    if ($server->status) {
+      return array(
+        'subject' => t('Game Server'),
+        'content' => gameservers_server_view($server, TRUE),
+      );
+    }
   }
 }
