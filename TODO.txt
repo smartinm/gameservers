@@ -1,0 +1,18 @@
+// $Id$
+
+Game Servers 6.x-1.x (development version)
+--------------------
+- Configurable image maps
+- Cache server responses and blocks
+- Server monitoring / statistics
+- Integration with Drupal user profiles
+- Integration with Views and Panels
+- Details page style plugginable
+- Geolocation servers
+- More robust API
+- More block styles
+- More query plugins (based feeds traking: game-monitor.com, serverspy.net)
+
+
+Want to participate into development?
+  http://drupal.org/project/gameservers
